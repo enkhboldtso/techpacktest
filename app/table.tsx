@@ -8,33 +8,38 @@ import {
   Text
 } from '@tremor/react';
 
-interface User {
-  id: number;
-  name: string;
-  username: string;
-  email: string;
+import { Generated } from 'kysely';
+
+interface FormDataState {
+  id?: number;
+  full_name?: string;
+  email?: string;
+  phone_number?: string;
+  degree?: string;
 }
 
-export default function UsersTable({ users }: { users: User[] }) {
+export default function JobApplicationsTable({ jobApplications }: { jobApplications: FormDataState[] }) {
   return (
     <Table>
       <TableHead>
         <TableRow>
           <TableHeaderCell>Name</TableHeaderCell>
-          <TableHeaderCell>Username</TableHeaderCell>
           <TableHeaderCell>Email</TableHeaderCell>
+          <TableHeaderCell>Phone Number</TableHeaderCell>
+          <TableHeaderCell>Degree</TableHeaderCell>
+          {/* Add more header cells for other fields as needed */}
         </TableRow>
       </TableHead>
       <TableBody>
-        {users.map((user) => (
-          <TableRow key={user.id}>
-            <TableCell>{user.name}</TableCell>
+        {jobApplications.map((application, index) => (
+          <TableRow key={index}>
+            <TableCell>{application.full_name}</TableCell>
             <TableCell>
-              <Text>{user.username}</Text>
+              <Text>{application.email}</Text>
             </TableCell>
-            <TableCell>
-              <Text>{user.email}</Text>
-            </TableCell>
+            <TableCell>{application.phone_number}</TableCell>
+            <TableCell>{application.degree}</TableCell>
+            {/* Add more cells for other fields as needed */}
           </TableRow>
         ))}
       </TableBody>

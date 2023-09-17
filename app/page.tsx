@@ -2,6 +2,7 @@ import { Card, Title, Text } from '@tremor/react';
 import { queryBuilder } from '../lib/planetscale';
 import Search from './search';
 import UsersTable from './table';
+import JobApplicationsTable from './table';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,10 +12,11 @@ export default async function IndexPage({
   searchParams: { q: string };
 }) {
   const search = searchParams.q ?? '';
-  const users = await queryBuilder
-    .selectFrom('users')
-    .select(['id', 'name', 'username', 'email'])
-    .where('name', 'like', `%${search}%`)
+  const jobApplications = await queryBuilder
+    .selectFrom('job_applications')
+    .select(['id', 'full_name', 'email', 'phone_number', 'degree'])
+    .where('full_name', 'like', `%${search}%`)
+    .where('email', 'like', `%${search}%`)
     .execute();
 
   return (
@@ -25,7 +27,7 @@ export default async function IndexPage({
       </Text>
       <Search />
       <Card className="mt-6">
-        <UsersTable users={users} />
+        <JobApplicationsTable jobApplications={jobApplications} />
       </Card>
     </main>
   );
