@@ -160,10 +160,10 @@ export default function JobApplicationForm() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+  
     try {
       await validationSchema.validate(formDataState, { abortEarly: false });
-
+  
       const response = await fetch('/api/submitApplication', {
         method: 'POST',
         headers: {
@@ -171,7 +171,7 @@ export default function JobApplicationForm() {
         },
         body: JSON.stringify(formDataState)
       });
-
+  
       if (response.ok) {
         const responseData = await response.json();
         setSuccessMessage(responseData.message);
@@ -182,23 +182,22 @@ export default function JobApplicationForm() {
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
         const errorMap: FormErrors = {};
-      
+  
         error.inner.forEach((e) => {
           const fieldName = e.path || (e.params && e.params.path);
-      
+  
           if (fieldName) {
-            errorMap[fieldName] = e.message;
+            errorMap[fieldName+ ''] = e.message;
           }
         });
-      
+  
         setFormErrors(errorMap as FormErrors);
       } else {
         console.error('Client Error:', error);
       }
-      
-      
     }
   };
+  
   return (
     <main className="p-4 md:p-10 mx-auto max-w-7xl">
       <form
