@@ -1,3 +1,5 @@
+'use client'
+
 import {
   Table,
   TableHead,
@@ -5,10 +7,11 @@ import {
   TableHeaderCell,
   TableBody,
   TableCell,
-  Text
+  Text,
+  Button
 } from '@tremor/react';
-
-import { Generated } from 'kysely';
+import { useState } from 'react'
+import Edit from './EditModal';
 
 interface FormDataState {
   id?: number;
@@ -19,15 +22,20 @@ interface FormDataState {
 }
 
 export default function JobApplicationsTable({ jobApplications }: { jobApplications: FormDataState[] }) {
-  return (
-    <Table>
+  const [selectedApplication, setSelectedApplication] = useState<FormData | null>(null);
+
+  const handleEdit = (application: FormData) => {
+    setSelectedApplication(application);
+  };
+  
+  return (<>
+  <Table>
       <TableHead>
         <TableRow>
-          <TableHeaderCell>Name</TableHeaderCell>
-          <TableHeaderCell>Email</TableHeaderCell>
-          <TableHeaderCell>Phone Number</TableHeaderCell>
-          <TableHeaderCell>Degree</TableHeaderCell>
-          {/* Add more header cells for other fields as needed */}
+          <TableHeaderCell>Нэр</TableHeaderCell>
+          <TableHeaderCell>Имэйл</TableHeaderCell>
+          <TableHeaderCell>Утасны дугаар</TableHeaderCell>
+          <TableHeaderCell>Боловсролын Зэрэг</TableHeaderCell>
         </TableRow>
       </TableHead>
       <TableBody>
@@ -39,10 +47,14 @@ export default function JobApplicationsTable({ jobApplications }: { jobApplicati
             </TableCell>
             <TableCell>{application.phone_number}</TableCell>
             <TableCell>{application.degree}</TableCell>
-            {/* Add more cells for other fields as needed */}
+            <TableCell>
+      <Button onClick={() => handleEdit(application)}>Засах</Button>
+    </TableCell>
           </TableRow>
         ))}
       </TableBody>
     </Table>
+  </>
+    
   );
 }

@@ -43,7 +43,7 @@ export default function Search({ disabled }: { disabled?: boolean }) {
           id="search"
           disabled={disabled}
           className="h-10 block w-full rounded-md border border-gray-200 pl-9 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-          placeholder="Search by name..."
+          placeholder="Хайх ..."
           spellCheck={false}
           onChange={(e) => handleSearch(e.target.value)}
         />
@@ -63,7 +63,7 @@ export default function Search({ disabled }: { disabled?: boolean }) {
               cy="12"
               r="10"
               stroke="currentColor"
-              stroke-width="4"
+              strokeWidth="4"
             />
             <path
               className="opacity-75"

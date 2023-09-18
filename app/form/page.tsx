@@ -3,10 +3,7 @@
 import React, { useState } from 'react';
 import { Card, Title, Text, Button } from '@tremor/react';
 import * as Yup from 'yup';
-import { validationSchema  } from '../validations/formSchema';
-import { queryBuilder } from '../../lib/planetscale';
-import { Generated } from 'kysely';
-
+import { validationSchema } from '../validations/formSchema';
 
 interface FormField {
   type: string;
@@ -24,126 +21,110 @@ interface FormGroup {
 
 const jobApplicationData: FormGroup[] = [
   {
-    group: 'Personal Information',
+    group: 'Ерөнхий мэдээлэл',
     fields: [
       {
         type: 'text',
-        label: 'Full Name',
+        label: 'Нэр',
         name: 'full_name',
         required: true
       },
       {
-        type: 'email',
-        label: 'Email',
+        type: 'text',
+        label: 'Имэйл',
         name: 'email',
         required: true
       },
       {
         type: 'text',
-        label: 'Phone Number',
+        label: 'Утасны дугаар',
         name: 'phone_number',
         required: true
       },
       {
         type: 'text',
-        label: 'Address',
+        label: 'Амьдарч буй хаяг',
         name: 'address',
-        required: true
-      },
-      {
-        type: 'text',
-        label: 'City',
-        name: 'city',
-        required: true
-      },
-      {
-        type: 'text',
-        label: 'State',
-        name: 'state',
         required: true
       }
     ]
   },
   {
-    group: 'Professional Information',
+    group: 'Нэмэлт мэдээлэл',
     fields: [
       {
-        type: 'text',
-        label: 'Resume/CV (PDF)',
-        name: 'resume',
-        accept: '.pdf',
-        required: true
-      },
-      {
         type: 'select',
-        label: 'Position',
+        label: 'Сонирхож буй албан тушаал',
         name: 'position',
         options: [
-          'Software Engineer',
-          'Data Analyst',
-          'Product Manager',
-          'Other'
+          'Сонгох',
+          'Веб хөгжүүлэгч',
+          'Дата аналист',
+          'Мобайл хөгжүүлэгч',
+          'Бусад'
         ],
         required: true
       },
       {
         type: 'text',
-        label: 'Facebook',
+        label: 'Фэйсбүүк',
         name: 'facebook'
       }
     ]
   },
   {
-    group: 'Education',
+    group: 'Боловсрол',
     fields: [
       {
         type: 'text',
-        label: 'University/College',
+        label: 'Төгссөн сургууль',
         name: 'university'
       },
       {
-        type: 'text',
-        label: 'Degree',
-        name: 'degree'
+        type: 'select',
+        label: 'Зэрэг /Баклавар, магистер гэх мэт/',
+        name: 'degree',
+        options: ['сонгох', 'Бага', 'Дунд', 'Бүрэн дунд', 'Дээд', 'Мастер'],
+        required: true
       },
       {
         type: 'text',
-        label: 'Graduation Year',
+        label: 'Төгссөн жил',
         name: 'graduation_year'
       }
     ]
   },
   {
-    group: 'Work Experience',
+    group: 'Ажлын туршлага',
     fields: [
       {
         type: 'text',
-        label: 'Company Name',
+        label: 'Компаний нэр',
         name: 'company_name'
       },
       {
         type: 'text',
-        label: 'Job Title',
+        label: 'Албан тушаал',
         name: 'job_title'
       },
       {
         type: 'text',
-        label: 'Employment Duration',
+        label: 'Ажилласан жил',
         name: 'employment_duration'
       },
       {
         type: 'textarea',
-        label: 'Job Description',
+        label: 'Ажилласан байсан чиг үүрэг',
         name: 'job_description'
       }
     ]
   },
   {
-    group: 'Additional Information',
+    group: 'Өөрийгөө тодорхойлох',
     fields: [
       {
         type: 'textarea',
-        label: 'Additional Comments',
+        label: 'Өөрийн тухай дэлгэрэнгүй оруулна уу',
         name: 'additional_comments'
       }
     ]
@@ -153,9 +134,9 @@ const jobApplicationData: FormGroup[] = [
 interface FormData {
   [key: string]: string;
 }
-
-
-
+interface FormErrors {
+  [key: string]: string;
+}
 
 export default function JobApplicationForm() {
   const [formDataState, setFormDataState] = useState<FormData>({});
@@ -167,37 +148,64 @@ export default function JobApplicationForm() {
     setFormDataState({ ...formDataState, [name]: value });
   };
 
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormDataState({ ...formDataState, [name]: value });
+  };
+
+  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormDataState({ ...formDataState, [name]: value });
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-  
+
     try {
-      // ... (client-side validation)
-  
-      // Make a POST request to the API route
+      await validationSchema.validate(formDataState, { abortEarly: false });
+
       const response = await fetch('/api/submitApplication', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formDataState),
+        body: JSON.stringify(formDataState)
       });
-  
+
       if (response.ok) {
         const responseData = await response.json();
         setSuccessMessage(responseData.message);
       } else {
         const errorData = await response.json();
-        // Handle server-side validation errors or other errors
         console.error('Server Error:', errorData.error);
       }
     } catch (error) {
-      console.error('Client Error:', error);
+      if (error instanceof Yup.ValidationError) {
+        const errorMap: FormErrors = {};
+      
+        error.inner.forEach((e) => {
+          const fieldName = e.path || (e.params && e.params.path);
+      
+          if (fieldName) {
+            errorMap[fieldName] = e.message;
+          }
+        });
+      
+        setFormErrors(errorMap as FormErrors);
+      } else {
+        console.error('Client Error:', error);
+      }
+      
+      
     }
   };
-
   return (
     <main className="p-4 md:p-10 mx-auto max-w-7xl">
-<form action="/api/submitApplication" method="POST" onSubmit={handleSubmit}>
+      <form
+        action="/api/submitApplication"
+        method="POST"
+        onSubmit={handleSubmit}
+      >
         {jobApplicationData.map((group, index) => (
           <Card key={index} className="mb-6">
             <Title className="mb-4">{group.group}</Title>
@@ -207,13 +215,38 @@ export default function JobApplicationForm() {
                   {field.label}
                   {field.required && <span className="text-red-500">*</span>}
                 </label>
-                <input
-                  type={field.type}
-                  name={field.name}
-                  value={formDataState[field.name] || ''}
-                  onChange={handleFieldChange}
-                  className="border rounded-md px-3 py-2 w-full"
-                />
+                {field.type === 'text' ? (
+                  <input
+                    type={field.type}
+                    name={field.name}
+                    value={formDataState[field.name] || ''}
+                    onChange={handleFieldChange}
+                    className="border rounded-md px-3 py-2 w-full"
+                  />
+                ) : null}
+                {field.type === 'select' ? (
+                  <select
+                    name={field.name}
+                    value={formDataState[field.name] || ''}
+                    onChange={handleSelectChange}
+                    className="border rounded-md px-3 py-2 w-full"
+                  >
+                    {field.options?.map((option, optionIndex) => (
+                      <option key={optionIndex} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                ) : null}
+                {field.type === 'textarea' ? (
+                  <textarea
+                    name={field.name}
+                    value={formDataState[field.name] || ''}
+                    onChange={handleTextareaChange}
+                    className="border rounded-md px-3 py-2 w-full"
+                  />
+                ) : null}
+
                 {formErrors[field.name] && (
                   <p className="text-red-500">{formErrors[field.name]}</p>
                 )}
@@ -222,15 +255,15 @@ export default function JobApplicationForm() {
           </Card>
         ))}
         <Button
-    type="submit"
-    className="bg-blue-500 text-white font-medium py-2 rounded-md hover:bg-blue-600"
-  >
-    Submit Application
-  </Button>
+          type="submit"
+          className="bg-blue-500 text-white font-medium py-2 rounded-md hover:bg-blue-600"
+        >
+          Анкет илгээх
+        </Button>
       </form>
       {successMessage && (
         <Card>
-          <Title>Thank You!</Title>
+          <Title>Баярлалаа</Title>
           <Text>{successMessage}</Text>
         </Card>
       )}

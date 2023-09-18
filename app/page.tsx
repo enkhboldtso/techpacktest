@@ -14,17 +14,30 @@ export default async function IndexPage({
   const search = searchParams.q ?? '';
   const jobApplications = await queryBuilder
     .selectFrom('job_applications')
-    .select(['id', 'full_name', 'email', 'phone_number', 'degree'])
+    .select([
+      'id',
+      'full_name',
+      'email',
+      'phone_number',
+      'address',
+      'position',
+      'facebook',
+      'university',
+      'degree',
+      'graduation_year',
+      'company_name',
+      'job_title',
+      'employment_duration',
+      'job_description',
+      'additional_comments'
+    ])
     .where('full_name', 'like', `%${search}%`)
-    .where('email', 'like', `%${search}%`)
     .execute();
 
   return (
     <main className="p-4 md:p-10 mx-auto max-w-7xl">
-      <Title>Users</Title>
-      <Text>
-        A list of users retrieved from a MySQL database (PlanetScale).
-      </Text>
+      <Title>Анкет</Title>
+      <Text>Ажилд орох анкетийн</Text>
       <Search />
       <Card className="mt-6">
         <JobApplicationsTable jobApplications={jobApplications} />
