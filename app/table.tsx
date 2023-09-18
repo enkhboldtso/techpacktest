@@ -11,7 +11,7 @@ import {
   Button
 } from '@tremor/react';
 import { useState } from 'react'
-import Edit from './EditModal';
+// import Edit from './EditModal';
 
 interface FormDataState {
   id?: number;
@@ -22,9 +22,9 @@ interface FormDataState {
 }
 
 export default function JobApplicationsTable({ jobApplications }: { jobApplications: FormDataState[] }) {
-  const [selectedApplication, setSelectedApplication] = useState<FormData | null>(null);
+  const [selectedApplication, setSelectedApplication] = useState<number | null>(null);
 
-  const handleEdit = (application: FormData) => {
+  const handleEdit = (application: number) => {
     setSelectedApplication(application);
   };
   
@@ -48,7 +48,7 @@ export default function JobApplicationsTable({ jobApplications }: { jobApplicati
             <TableCell>{application.phone_number}</TableCell>
             <TableCell>{application.degree}</TableCell>
             <TableCell>
-      <Button onClick={() => handleEdit(application)}>Засах</Button>
+      {/* <Button onClick={() => handleEdit(application?.id)}>Засах</Button> */}
     </TableCell>
           </TableRow>
         ))}
